@@ -29,6 +29,11 @@
       background:var(--acc);color:#04201c;display:flex;align-items:center;justify-content:center;
       font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.45)}
   .dl:hover{filter:brightness(1.1)}
+  .copy{position:absolute;bottom:6px;left:6px;width:30px;height:30px;border-radius:50%;
+        background:rgba(0,0,0,.62);color:#fff;border:1px solid #3a3a44;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+  .copy:hover{background:rgba(0,0,0,.85)}
+  .copy.ok{background:var(--acc);color:#04201c;border-color:var(--acc)}
   .noimg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#555;font-size:11px}
   .meta{padding:7px 9px 9px;text-decoration:none;color:inherit;display:block}
   .row{display:flex;justify-content:space-between;font-size:11px;color:#9a9aa5}
@@ -65,6 +70,12 @@ let DATA=[];
 const grid=document.getElementById('grid');
 const $=id=>document.getElementById(id);
 function fmt(n){return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'k':n}
+function copyLink(e,btn,url){
+  e.preventDefault(); e.stopPropagation();
+  const done=()=>{const o=btn.textContent;btn.textContent='✓';btn.classList.add('ok');setTimeout(()=>{btn.textContent=o;btn.classList.remove('ok')},1100)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done).catch(()=>{prompt('Copy link:',url)});}
+  else{const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove();done();}
+}
 function render(){
   const q=$('q').value.toLowerCase().trim();
   const ty=$('type').value, yr=$('year').value, sort=$('sort').value;
@@ -81,7 +92,8 @@ function render(){
     const dl=d.video?`<a class="dl" href="${d.video}" target="_blank" rel="noopener" download="${d.date}-${d.i+1}.mp4" title="Download video">⬇</a>`:'';
     return `<div class="card">
       <div class="thumbwrap"><a class="thumb" href="${d.url}" target="_blank" rel="noopener">${img}</a>
-        <span class="badge">${TYPE_ICON[d.type]||''}</span>${dl}</div>
+        <span class="badge">${TYPE_ICON[d.type]||''}</span>
+        <button class="copy" title="Copy Instagram link" onclick="copyLink(event,this,'${d.url}')">🔗</button>${dl}</div>
       <a class="meta" href="${d.url}" target="_blank" rel="noopener">
         <div class="row"><span class="n">#${d.i+1}</span><span>${d.date}</span></div>
         <div class="row"><span>♥ ${fmt(d.likes)}</span><span>💬 ${fmt(d.comments)}</span></div>
